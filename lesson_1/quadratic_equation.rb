@@ -13,9 +13,9 @@ elsif d == 0
 
   puts "x = #{x}"
 else
-  x1 = (-b + Math.sqrt(d)) / (2 * a)
-  x2 = (-b - Math.sqrt(d)) / (2 * a)
+  d_sqrt = Math.sqrt(d)
+  x1 = (-b + d_sqrt) / (2 * a)
+  x2 = (-b - d_sqrt) / (2 * a)
 
   puts "x1 = #{x1}, x2 = #{x2}"
 end
-
