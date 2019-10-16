@@ -38,7 +38,9 @@ class Station
 end
 
 class Route
-  def initialize
+  def initialize(start_station, end_station)
+    @start_station = start_station
+    @end_station = end_station
     @stations = []
   end
 end
