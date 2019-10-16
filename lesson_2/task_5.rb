@@ -8,10 +8,8 @@ days_in_february = (year % 400) == 0 ? 29 : 28
 days_in_months = [31, days_in_february, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
 
 sequence_number = 0
-days_in_months.each_with_index do |day_number, index|
-  if month == index + 1
-    break
-  else
+days_in_months.each.with_index(1) do |day_number, index|
+  if index < month
     sequence_number += day_number
   end
 end

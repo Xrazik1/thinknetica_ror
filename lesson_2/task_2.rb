@@ -1,10 +1,3 @@
-range = (10..100)
-array = []
 
-range.each do |number|
-  if (number % 5) == 0
-    array.push(number)
-  end
-end
+puts (5..100).step(5).to_a
 
-puts array

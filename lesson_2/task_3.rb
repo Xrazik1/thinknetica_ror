@@ -1,10 +1,10 @@
 starts_from = 1
 ends_at = 100
-f_numbers = [starts_from, starts_from]
+fi_numbers = [starts_from, starts_from]
 
-loop do
-  f_number = f_numbers[-1] + f_numbers[-2]
-  f_number > ends_at ? break : f_numbers.push(f_number)
+while (fi_numbers[-1] + fi_numbers[-2]) < ends_at
+  fi_number = fi_numbers[-1] + fi_numbers[-2]
+  fi_numbers.push(fi_number)
 end
 
-puts f_numbers
+puts fi_numbers

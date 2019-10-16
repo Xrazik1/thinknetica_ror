@@ -14,7 +14,5 @@ months = {
 }
 
 months.each do |month|
-  if month[1] == 30
-    puts "#{month[0]} has #{month[1]} days"
-  end
+    puts "#{month[0]} has #{month[1]} days" if month[1] == 30
 end
