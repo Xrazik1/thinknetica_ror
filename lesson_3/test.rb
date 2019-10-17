@@ -23,33 +23,34 @@ puts "Поезд 100 прицепляет вагон на начальной с�
 puts "------------------"
 train1.add_carriage
 train1.increase_speed_by(40)
-train1.move_on_route("forward" )
-train1.move_on_route("forward" )
-train1.move_on_route("forward" )
+train1.move_forward
+train1.move_forward
+train1.move_forward
 train1.stop
 train1.remove_carriage
 
 train1.increase_speed_by(40)
-train1.move_on_route("back" )
-train1.move_on_route("back" )
-train1.move_on_route("back" )
+train1.move_back
+train1.move_back
+train1.move_back
 
 puts "------------------"
 puts "Поезд 101 едет на станцию 3, прицепляет 2 вагона, едет на конечную станцию, отцепляет их и едет на станцию 4"
 puts "------------------"
 train2.increase_speed_by(100)
-train2.move_on_route("forward" )
+train2.move_forward
 train2.stop
 train2.add_carriage
 train2.add_carriage
 train2.increase_speed_by(100)
-train2.move_on_route("forward" )
-train2.move_on_route("forward" )
+train2.move_forward
+train2.move_forward
 train2.stop
 train2.remove_carriage
 train2.remove_carriage
+
 train2.increase_speed_by(90)
-train2.move_on_route("back" )
+train2.move_back
 
 puts "------------------"
 puts "
@@ -57,18 +58,23 @@ puts "
 Но во время движения в маршрут добавляется станция 4. Как только поезд доехал до конечной станции, станция 4 удаляется из маршрута"
 puts "------------------"
 train3.increase_speed_by(50)
-train3.move_on_route("forward")
-train3.move_on_route("forward")
-train3.move_on_route("forward")
+train3.move_forward
+train3.move_forward
+train3.move_forward
 train3.stop
 train3.increase_speed_by(100)
 route2.add_station(station4)
-train3.move_on_route("back")
-train3.move_on_route("back")
+train3.move_back
+train3.move_back
 route2.remove_station(station4)
 
-station1.show_trains_types
-station2.show_trains_types
-station3.show_trains_types
-station4.show_trains_types
+station1.show_train_type_quantity("Пассажирский")
+station1.show_train_type_quantity("Грузовой")
+station2.show_train_type_quantity("Пассажирский")
+station2.show_train_type_quantity("Грузовой")
+station3.show_train_type_quantity("Пассажирский")
+station3.show_train_type_quantity("Грузовой")
+station4.show_train_type_quantity("Пассажирский")
+station4.show_train_type_quantity("Грузовой")
+
 route2.show_stations

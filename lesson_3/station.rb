@@ -23,18 +23,15 @@ class Station
     @trains.each { |train| puts "#{train.number}(#{train.type})" }
   end
 
-  def show_trains_types
-    passenger_trains_quantity = 0
-    cargo_trains_quantity = 0
+  def show_train_type_quantity(type)
+    trains_quantity = 0
 
     @trains.each do |train|
-      if train.type.downcase == "пассажирский"
-        passenger_trains_quantity += 1
-      elsif train.type.downcase == "грузовой"
-        cargo_trains_quantity += 1
+      if train.type.downcase == type.downcase
+        trains_quantity += 1
       end
     end
 
-    puts "Количество пассажирских поездов на станции '#{@title}': #{passenger_trains_quantity}, грузовых: #{cargo_trains_quantity}"
+    puts "Количество поездов типа '#{type}' на станции '#{@title}' - #{trains_quantity}"
   end
 end

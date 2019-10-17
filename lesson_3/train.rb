@@ -9,8 +9,8 @@ class Train
     @type = type
     @carriages_quantity = carriages_quantity
     @current_speed = 0
-    @current_station = {}
-    @route = {}
+    @current_station
+    @route
   end
 
   def add_route(route)
@@ -27,8 +27,7 @@ class Train
     @current_speed = 0
   end
 
-  # Лучше разделять действия на разные методы, или сделать один метод change_carriage
-  # где через switch выбирать добавлять или удалять вагоны как в move_on_route?
+
   def add_carriage
     if @current_speed == 0
       @carriages_quantity += 1
@@ -40,65 +39,68 @@ class Train
 
   def remove_carriage
     if @current_speed == 0
-      @carriages_quantity -= 1
-      puts "От поезда #{@number} отцеплен вагон, текущее количество вагонов #{@carriages_quantity}"
+      if @carriages_quantity != 0
+        @carriages_quantity -= 1
+        puts "От поезда #{@number} отцеплен вагон, текущее количество вагонов #{@carriages_quantity}"
+      else
+        puts "У поезда #{number} уже отсутствуют вагоны"
+      end
+
     else
       puts "Поезд не может отцеплять вагоны на ходу"
     end
   end
 
+  # Это не плохо что у двух методов код почти полностью дублируется за исключением пары строк?
+  def move_back
+    if @current_speed != 0
+      target_station_index = @route.all_stations.find_index(@current_station) - 1
+      last_possible_station_index = -1
 
-  def move_on_route(action)
-    if @current_speed == 0
-      puts "Поезд не может менять станции так как стоит на месте"
-    else
-      case action
-      when "back"
-        target_station_index = @route.all_stations.find_index(@current_station) - 1
-        last_possible_station_index = -1
+      if target_station_index != last_possible_station_index
+        @current_station.send_train(self)
+        @route.all_stations[target_station_index].accept_train(self)
+        @current_station = @route.all_stations[target_station_index]
 
-        if target_station_index != last_possible_station_index
-
-          @current_station.send_train(self)
-          @route.all_stations[target_station_index].accept_train(self)
-          @current_station = @route.all_stations[target_station_index]
-
-          puts "Поезд #{@number} прибыл на станцию: #{@current_station.title}"
-        else
-          puts "Поезд #{@number} уже на начальной станции"
-        end
-      when "forward"
-        target_station_index = @route.all_stations.find_index(@current_station) + 1
-        last_possible_station_index = @route.all_stations.length
-
-        if target_station_index != last_possible_station_index
-
-          @current_station.send_train(self)
-          @route.all_stations[target_station_index].accept_train(self)
-          @current_station = @route.all_stations[target_station_index]
-
-          puts "Поезд #{@number} прибыл на станцию: #{@current_station.title}"
-        else
-          puts "Поезд #{@number} уже на конечной станции"
-        end
+        puts "Поезд #{@number} прибыл на станцию: #{@current_station.title}"
       else
-        puts "Поезд не может двигаться в данном направлении (#{action})"
+        puts "Поезд #{@number} уже на начальной станции"
       end
+    else
+      puts "Поезд не может менять станции так как стоит на месте"
     end
+  end
 
+  def move_forward
+    if @current_speed != 0
+      target_station_index = @route.all_stations.find_index(@current_station) + 1
+      last_possible_station_index = @route.all_stations.length
+
+      if target_station_index != last_possible_station_index
+        @current_station.send_train(self)
+        @route.all_stations[target_station_index].accept_train(self)
+        @current_station = @route.all_stations[target_station_index]
+
+        puts "Поезд #{@number} прибыл на станцию: #{@current_station.title}"
+      else
+        puts "Поезд #{@number} уже на конечной станции"
+      end
+    else
+      puts "Поезд не может менять станции так как стоит на месте"
+    end
   end
 
 
   def show_station(which)
     case which
     when "current"
-      puts @current_station.title
+      return @current_station
     when "previous"
       target_station_index = @route.all_stations.find_index(@current_station) - 1
       last_possible_station_index = -1
 
       if target_station_index != last_possible_station_index
-        puts @route.all_stations[target_station_index].title
+        return @route.all_stations[target_station_index]
       else
         puts "Поезд на начальной станции"
       end
@@ -106,7 +108,7 @@ class Train
       target_station_index = @route.all_stations.find_index(@current_station) + 1
       last_possible_station_index = @route.all_stations.length
       if target_station_index != last_possible_station_index
-        puts @route.all_stations[target_station_index].title
+        return @route.all_stations[target_station_index]
       else
         puts "Поезд на конечной станции"
       end
