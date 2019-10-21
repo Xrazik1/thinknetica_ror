@@ -1,10 +1,18 @@
 class Station
   attr_accessor :title
 
+  @@station_instances = []
+
   def initialize(title)
     @title = title
     @passenger_trains = []
     @cargo_trains = []
+
+    @@station_instances << self
+  end
+
+  def self.all_stations
+    @@station_instances
   end
 
   def all_trains
