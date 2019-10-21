@@ -1,13 +1,26 @@
 class Train
   attr_reader :current_speed
-  attr_accessor :number
+  attr_reader :number
   attr_reader :carriages
   attr_reader :route
+
+  @@train_instances = []
 
   def initialize(number)
     @number = number
     @carriages = []
     @current_speed = 0
+
+    @@train_instances << self
+  end
+
+  def self.find(number)
+    @@train_instances.each do |instance|
+      if number == instance.number
+        return instance
+      end
+    end
+    nil
   end
 
   def add_route(route)
