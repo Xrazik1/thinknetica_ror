@@ -7,6 +7,7 @@ module Manufacturer
     self.manufacturer_name = name
   end
 
-  private
+  # Если ставить protected то интерпретатор ругается что нельзя вызывать manufacturer_name так как он приватный
+  # хотя модуль подключается к cargo_train.rb а не к train.rb
   attr_accessor :manufacturer_name
 end
