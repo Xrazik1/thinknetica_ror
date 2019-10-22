@@ -20,6 +20,7 @@ class Train
         return instance
       end
     end
+    # Без nil возвращает весь массив с объектами, если номер не найден
     nil
   end
 
@@ -129,8 +130,6 @@ class Train
 
     if target_station_index != last_possible_station_index
       @route.all_stations[target_station_index]
-    else
-      nil
     end
   end
 end
