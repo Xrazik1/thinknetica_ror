@@ -24,6 +24,7 @@ route2 = Route.new(station2, station3)
 puts "Количество станций: #{Station.instances}"
 puts "Количество грузовых поездов: #{CargoTrain.instances}"
 puts "Количество пассажирских поездов: #{PassengerTrain.instances}"
+puts "Количество маршрутов: #{Route.instances}"
 
 train1.set_manufacturer("производитель1")
 puts "Производитель поезда #{train1.number} '#{train1.get_manufacturer}'"
