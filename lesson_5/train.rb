@@ -4,24 +4,18 @@ class Train
   attr_reader :carriages
   attr_reader :route
 
-  @@train_instances = []
+  @@train_instances = {}
 
   def initialize(number)
     @number = number
     @carriages = []
     @current_speed = 0
 
-    @@train_instances << self
+    @@train_instances[self.number] = self
   end
 
   def self.find(number)
-    @@train_instances.each do |instance|
-      if number == instance.number
-        return instance
-      end
-    end
-    # Без nil возвращает весь массив с объектами, если номер не найден
-    nil
+    @@train_instances[number]
   end
 
   def add_route(route)
