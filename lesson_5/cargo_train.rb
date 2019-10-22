@@ -1,13 +1,17 @@
 require_relative "train"
 require_relative "manufacturer"
+require_relative 'instance_counter'
 
 class CargoTrain < Train
   include Manufacturer
+  include InstanceCounter
 
   attr_reader :type
 
   def initialize(number)
     super(number)
+    self.register_instance
+
     @type = "Грузовой"
   end
 
