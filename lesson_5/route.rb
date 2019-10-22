@@ -1,5 +1,11 @@
+require_relative 'instance_counter'
+
 class Route
+  include InstanceCounter
+
   def initialize(start_station, end_station)
+    self.register_instance
+
     @middle_stations = []
     @start_station = start_station
     @end_station = end_station
