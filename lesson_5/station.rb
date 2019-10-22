@@ -1,14 +1,19 @@
+require_relative 'instance_counter'
+
 class Station
+  include InstanceCounter
+
   attr_accessor :title
 
   @@station_instances = []
 
   def initialize(title)
+    self.register_instance
+    @@station_instances << self
+
     @title = title
     @passenger_trains = []
     @cargo_trains = []
-
-    @@station_instances << self
   end
 
   def self.all_stations
