@@ -13,13 +13,17 @@ passenger2 = PassengerCarriage.new
 passenger3 = PassengerCarriage.new
 train1 = CargoTrain.new("100")
 train2 = CargoTrain.new("101")
-train3 = PassengerTrain.new("101")
+train3 = PassengerTrain.new("102")
 station1 = Station.new("Первая станция")
 station2 = Station.new("Вторая станция")
 station3 = Station.new("Третья станция")
 station4 = Station.new("Четвертая станция")
 route1 = Route.new(station1, station2)
 route2 = Route.new(station2, station3)
+
+puts "Количество станций: #{Station.instances}"
+puts "Количество грузовых поездов: #{CargoTrain.instances}"
+puts "Количество пассажирских поездов: #{PassengerTrain.instances}"
 
 train1.set_manufacturer("производитель1")
 puts "Производитель поезда #{train1.number} '#{train1.get_manufacturer}'"
@@ -30,6 +34,12 @@ passenger1.set_manufacturer("производитель1")
 puts "Производитель пассажирского вагона '#{passenger1.get_manufacturer}'"
 cargo1.set_manufacturer("производитель2")
 puts "Производитель грузового вагона '#{cargo1.get_manufacturer}'"
+
+puts "Список всех существующих станций"
+Station.all_stations.each.with_index(1) {|station, number| puts "#{number}. #{station.title}"}
+
+print "Экземпляр пассажирского поезда с номером 102: "
+puts PassengerTrain.find("101")
 
 route1.add_station(station3)
 route1.add_station(station4)
