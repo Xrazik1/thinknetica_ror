@@ -1,9 +1,7 @@
 module InstanceCounter
   def self.included(base)
     base.extend ClassMethods
-    # Почему-то без base.send всё работает
     base.include InstanceMethods
-    base.instances_count = 0
   end
 
   module ClassMethods
@@ -17,7 +15,7 @@ module InstanceCounter
   module InstanceMethods
     protected
     def register_instance
-      self.class.instances_count += 1
+      self.class.instances_count = (self.class.instances_count || 0) + 1
     end
   end
 end
