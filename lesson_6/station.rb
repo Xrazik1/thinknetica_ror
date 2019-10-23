@@ -1,10 +1,26 @@
+require_relative 'railway_error'
+
 class Station
-  attr_accessor :title
+  attr_reader :title
 
   def initialize(title)
     @title = title
     @passenger_trains = []
     @cargo_trains = []
+
+    validate!
+  end
+
+  def valid?
+    validate!
+    true
+  rescue
+    false
+  end
+
+  def change_title(new_title)
+    @title = new_title
+    validate!
   end
 
   def all_trains
@@ -26,9 +42,9 @@ class Station
       elsif train.type == "Пассажирский"
         @passenger_trains.delete(train)
       end
-      puts "Поезд #{train.number} успешно отправлен со станции: #{@title}"
+      true
     else
-      puts "Поезд с номером #{train.number} отсутствует на станции: #{@title}"
+      raise RailwayError.new, "Поезд с номером #{train.number} отсутствует на станции: #{@title}"
     end
   end
 
@@ -38,5 +54,12 @@ class Station
 
   def show_train_type_quantity
     puts "Количество поездов на станции '#{@title}': Грузовых - #{@cargo_trains.size}, Пассажирских - #{@passenger_trains.size}"
+  end
+
+  protected
+
+  def validate!
+    raise RailwayError.new, "Название станции не может быть пустой строкой!" if title == ""
+    true
   end
 end
