@@ -21,6 +21,11 @@ class Train
     false
   end
 
+  def change_train_number(new_number)
+    @number = new_number
+    validate!
+  end
+
   def add_route(route)
     @route = route
     @current_station = @route.all_stations[0]
