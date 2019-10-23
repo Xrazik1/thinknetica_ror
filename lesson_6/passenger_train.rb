@@ -1,5 +1,5 @@
-require "json"
 require_relative "train"
+require_relative 'railway_error'
 
 class PassengerTrain < Train
   attr_reader :type
@@ -14,7 +14,7 @@ class PassengerTrain < Train
       @carriages.push(carriage)
       puts "К поезду #{@number} прицеплен пассажирский вагон, текущее количество вагонов #{@carriages.size}"
     else
-      puts "Поезд не может прицеплять вагоны на ходу"
+      raise RailwayError.new, "Поезд не может прицеплять вагоны на ходу"
     end
   end
 
@@ -24,41 +24,10 @@ class PassengerTrain < Train
         @carriages.delete(carriage)
         puts "От поезда #{@number} отцеплен пассажирский вагон, текущее количество вагонов #{@carriages.size}"
       else
-        puts "У поезда #{number} отсутствуют вагоны"
+        raise RailwayError.new, "У поезда #{number} отсутствуют вагоны"
       end
     else
-      puts "Поезд не может отцеплять вагоны на ходу"
-    end
-  end
-
-  def add_passengers(carriage)
-    if @carriages.include?(carriage)
-      if @current_speed == 0
-        carriage_number = @carriages.find_index(carriage) + 1
-        new_passengers = rand(1..30)
-        carriage.add_passengers(new_passengers)
-        puts "В вагон #{carriage_number} добавлено #{new_passengers} чел, текущее количество - #{carriage.people_quantity} чел"
-      else
-        puts "Остановите поезд чтобы набрать пассажиров"
-      end
-    else
-      puts "Такой вагон отсутствует в поезде #{@number}"
-    end
-  end
-
-  def remove_passengers(carriage)
-    if @carriages.include?(carriage)
-      if @current_speed == 0
-        carriage_number = @carriages.find_index(carriage) + 1
-        current_passengers_quantity = carriage.people_quantity
-        old_passengers = rand(1..current_passengers_quantity)
-        carriage.remove_passengers(old_passengers)
-        puts "Из вагона #{carriage_number} удалено #{old_passengers} чел, текущее количество - #{carriage.people_quantity} чел"
-      else
-        puts "Остановите поезд чтобы набрать пассажиров"
-      end
-    else
-      puts "Такой вагон отсутствует в поезде #{@number}"
+      raise RailwayError.new, "Поезд не может отцеплять вагоны на ходу"
     end
   end
 end
