@@ -1,4 +1,5 @@
 require_relative "train"
+require_relative 'railway_error'
 
 class CargoTrain < Train
   attr_reader :type
@@ -6,6 +7,7 @@ class CargoTrain < Train
   def initialize(number)
     super(number)
     @type = "Грузовой"
+    validate!
   end
 
   def add_cargo_carriage(carriage)
@@ -13,7 +15,7 @@ class CargoTrain < Train
       @carriages.push(carriage)
       puts "К поезду #{@number} прицеплен грузовой вагон, текущее количество вагонов #{@carriages.size}"
     else
-      puts "Поезд не может прицеплять вагоны на ходу"
+      raise RailwayError.new, "Поезд не может прицеплять вагоны на ходу"
     end
   end
 
@@ -23,11 +25,10 @@ class CargoTrain < Train
         @carriages.delete(carriage)
         puts "От поезда #{@number} отцеплен грузовой вагон, текущее количество вагонов #{@carriages.size}"
       else
-        puts "У поезда #{number} отсутствуют вагоны"
+        raise RailwayError.new, "У поезда #{number} отсутствуют вагоны"
       end
-
     else
-      puts "Поезд не может отцеплять вагоны на ходу"
+      raise RailwayError.new, "Поезд не может отцеплять вагоны на ходу"
     end
   end
 end
