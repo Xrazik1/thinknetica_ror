@@ -4,10 +4,21 @@ class Train
   attr_reader :carriages
   attr_reader :route
 
+  NUMBER_FORMAT = /^[a-z0-9]{3}-?[a-z0-9]{2}$/i
+
   def initialize(number)
     @number = number
     @carriages = []
     @current_speed = 0
+
+    validate!
+  end
+
+  def valid?
+    validate!
+    true
+  rescue
+    false
   end
 
   def add_route(route)
@@ -95,9 +106,16 @@ class Train
     end
   end
 
+  protected
+
+  def validate!
+    raise "Номер поезда не может быть пустой строкой!" if number == ""
+    raise "Номер поезда не соответствует формату" if number !~ NUMBER_FORMAT
+    true
+  end
+
   private
 
-  # Внутренний метод для того чтобы не повторять проверки в show_station и move_back
   def prev_station
     target_station_index = @route.all_stations.find_index(@current_station) - 1
     last_possible_station_index = -1
@@ -109,7 +127,6 @@ class Train
     end
   end
 
-  # Внутренний метод для того чтобы не повторять проверки в show_station и move_forward
   def next_station
     target_station_index = @route.all_stations.find_index(@current_station) + 1
     last_possible_station_index = @route.all_stations.length
