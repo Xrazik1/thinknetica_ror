@@ -1,6 +1,8 @@
+require_relative 'railway_error'
+
 class Train
   attr_reader :current_speed
-  attr_accessor :number
+  attr_reader :number
   attr_reader :carriages
   attr_reader :route
 
@@ -21,7 +23,7 @@ class Train
     false
   end
 
-  def change_train_number(new_number)
+  def change_number(new_number)
     @number = new_number
     validate!
   end
@@ -50,15 +52,15 @@ class Train
           prev_station_result.accept_train(self)
           @current_station = prev_station_result
 
-          puts "Поезд #{@number} прибыл на станцию: #{@current_station.title}"
+          true
         else
-          puts "Поезд #{@number} уже на начальной станции"
+          raise RailwayError.new, "Поезд #{@number} уже на начальной станции"
         end
       else
-        puts "Поезд не может менять станции так как стоит на месте"
+        raise RailwayError.new, "Поезд не может менять станции так как стоит на месте"
       end
     else
-      puts "Задайте маршрут чтобы управлять поездом"
+      raise RailwayError.new, "Задайте маршрут чтобы управлять поездом"
     end
 
   end
@@ -73,15 +75,15 @@ class Train
           next_station_result.accept_train(self)
           @current_station = next_station_result
 
-          puts "Поезд #{@number} прибыл на станцию: #{@current_station.title}"
+          true
         else
-          puts "Поезд #{@number} уже на конечной станции"
+          raise RailwayError.new, "Поезд #{@number} уже на конечной станции"
         end
       else
-        puts "Поезд не может менять станции так как стоит на месте"
+        raise RailwayError.new, "Поезд не может менять станции так как стоит на месте"
       end
     else
-      puts "Задайте маршрут чтобы управлять поездом"
+      raise RailwayError.new, "Задайте маршрут чтобы управлять поездом"
     end
   end
 
@@ -114,8 +116,8 @@ class Train
   protected
 
   def validate!
-    raise "Номер поезда не может быть пустой строкой!" if number == ""
-    raise "Номер поезда не соответствует формату" if number !~ NUMBER_FORMAT
+    raise RailwayError.new, "Номер поезда не может быть пустой строкой!" if number == ""
+    raise RailwayError.new, "Номер поезда не соответствует формату" if number !~ NUMBER_FORMAT
     true
   end
 
