@@ -12,7 +12,6 @@ class PassengerTrain < Train
   def add_passenger_carriage(carriage)
     if @current_speed == 0
       @carriages.push(carriage)
-      puts "К поезду #{@number} прицеплен пассажирский вагон, текущее количество вагонов #{@carriages.size}"
     else
       raise RailwayError.new, "Поезд не может прицеплять вагоны на ходу"
     end
@@ -22,7 +21,6 @@ class PassengerTrain < Train
     if @current_speed == 0
       if @carriages.include?(carriage)
         @carriages.delete(carriage)
-        puts "От поезда #{@number} отцеплен пассажирский вагон, текущее количество вагонов #{@carriages.size}"
       else
         raise RailwayError.new, "У поезда #{number} отсутствуют вагоны"
       end
