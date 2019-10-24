@@ -1,6 +1,9 @@
 require_relative 'railway_error'
+require_relative 'general_methods'
 
 class Station
+  include GeneralMethods
+
   attr_reader :title
 
   def initialize(title)
@@ -9,13 +12,6 @@ class Station
     @cargo_trains = []
 
     validate!
-  end
-
-  def valid?
-    validate!
-    true
-  rescue
-    false
   end
 
   def change_title(new_title)
@@ -60,6 +56,5 @@ class Station
 
   def validate!
     raise RailwayError.new, "Название станции не может быть пустой строкой!" if title == ""
-    true
   end
 end

@@ -1,6 +1,9 @@
 require_relative 'railway_error'
+require_relative 'general_methods'
 
 class Train
+  include GeneralMethods
+
   attr_reader :current_speed
   attr_reader :number
   attr_reader :carriages
@@ -14,13 +17,6 @@ class Train
     @current_speed = 0
 
     validate!
-  end
-
-  def valid?
-    validate!
-    true
-  rescue
-    false
   end
 
   def change_number(new_number)
@@ -118,7 +114,6 @@ class Train
   def validate!
     raise RailwayError.new, "Номер поезда не может быть пустой строкой!" if number == ""
     raise RailwayError.new, "Номер поезда не соответствует формату" if number !~ NUMBER_FORMAT
-    true
   end
 
   private

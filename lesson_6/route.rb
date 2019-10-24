@@ -1,20 +1,16 @@
 require_relative 'station'
 require_relative 'railway_error'
+require_relative 'general_methods'
 
 class Route
+  include GeneralMethods
+
   def initialize(start_station, end_station)
     @middle_stations = []
     @start_station = start_station
     @end_station = end_station
 
     validate!
-  end
-
-  def valid?
-    validate!
-    true
-  rescue
-    false
   end
 
   def all_stations
@@ -52,6 +48,5 @@ class Route
   def validate!
     raise RailwayError.new, "Начальная станция должна быть объектом класса 'Станция'" unless @start_station.instance_of?(Station)
     raise RailwayError.new, "Конечная станция должна быть объектом класса 'Станция'" unless @end_station.instance_of?(Station)
-    true
   end
 end
