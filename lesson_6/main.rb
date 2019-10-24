@@ -30,8 +30,11 @@ class Railway
       end
       main_menu_controller(item)
     else
-      raise RailwayError.new({source_method: method(:main_menu) }), "Данного пункта меню не существует, повторите ввод"
+      raise RailwayError.new, "Данного пункта меню не существует, повторите ввод"
     end
+  rescue RailwayError => e
+    puts e.message
+    retry
   end
 
   def station_menu
@@ -102,7 +105,7 @@ class Railway
 
   def routes_menu
     if @config[:stations].empty?
-      raise RailwayError.new({source_method: method(:station_menu) }), "Создайте хотя бы две станции чтобы создавать маршруты"
+      raise RailwayError.new, "Создайте хотя бы две станции чтобы создавать маршруты"
     else
       puts "Добавьте или измените существующие маршруты"
       puts "1. Добавить новый маршрут"
@@ -119,6 +122,9 @@ class Railway
         routes_menu_controller(item)
       end
     end
+  rescue RailwayError => e
+    puts e.message
+    main_menu
   end
 
   def route_menu(chosen_route_number)
@@ -175,13 +181,14 @@ class Railway
           station_menu
         end
       else
-        raise RailwayError.new({source_method: method(:station_menu_controller), source_args: [item] }),
-              "Вы ввели неверный пункт меню, повторите ввод"
+        raise RailwayError.new, "Произошла ошибка ввода пункта меню, вы были возвращены на предыдущий экран"
       end
     else
-      raise RailwayError.new({source_method: method(:station_menu) }),
-            "Произошла ошибка ввода пункта меню, вы были возвращены на предыдущий экран"
+      raise RailwayError.new, "Произошла ошибка ввода пункта меню, вы были возвращены на предыдущий экран"
     end
+  rescue RailwayError => e
+    puts e.message
+    station_menu
   end
 
   def trains_menu_controller(item)
@@ -192,9 +199,11 @@ class Railway
     when 2..last_train_index
       train_menu(item - 2)
     else
-      raise RailwayError.new({source_method: method(:trains_menu) }),
-            "Произошла ошибка ввода пункта меню, вы были возвращены на предыдущий экран"
+      raise RailwayError.new, "Произошла ошибка ввода пункта меню, вы были возвращены на предыдущий экран"
     end
+  rescue RailwayError => e
+    puts e.message
+    trains_menu
   end
 
   def train_menu_controller(item, chosen_train_number)
@@ -206,8 +215,7 @@ class Railway
       train_menu(chosen_train_number)
     when 3
       if @config[:routes].empty?
-        raise RailwayError.new({source_method: method(:main_menu) }),
-              "У вас отсутствуют доступные маршруты, добавьте их"
+        raise RailwayError.new, "У вас отсутствуют доступные маршруты, добавьте их"
       else
         change_train_routes(chosen_train_number)
         train_menu(chosen_train_number)
@@ -224,9 +232,11 @@ class Railway
       remove_train(chosen_train_number)
       trains_menu
     else
-      raise RailwayError.new({source_method: method(:train_menu), source_args: [chosen_train_number] }),
-            "Произошла ошибка ввода пункта меню, вы были возвращены на предыдущий экран"
+      raise RailwayError.new, "Произошла ошибка ввода пункта меню, вы были возвращены на предыдущий экран"
     end
+  rescue RailwayError => e
+    puts e.message
+    trains_menu
   end
 
   def route_menu_controller(item, chosen_route_number)
@@ -241,9 +251,11 @@ class Railway
       remove_route(chosen_route_number)
       routes_menu
     else
-      raise RailwayError.new({source_method: method(:route_menu), source_args: [chosen_route_number] }),
-            "Произошла ошибка ввода пункта меню, вы были возвращены на предыдущий экран"
+      raise RailwayError.new, "Произошла ошибка ввода пункта меню, вы были возвращены на предыдущий экран"
     end
+  rescue RailwayError => e
+    puts e.message
+    routes_menu
   end
 
   def routes_menu_controller(item)
@@ -254,9 +266,11 @@ class Railway
     when 2..last_route_index
       route_menu(item - 2)
     else
-      raise RailwayError.new({source_method: method(:routes_menu) }),
-            "Произошла ошибка ввода пункта меню, вы были возвращены на предыдущий экран"
+      raise RailwayError.new, "Произошла ошибка ввода пункта меню, вы были возвращены на предыдущий экран"
     end
+  rescue RailwayError => e
+    puts e.message
+    routes_menu
   end
 
 # Helpers
@@ -266,17 +280,12 @@ class Railway
   def create_station(item)
     print "Введите имя новой станции: "
     name = gets.chomp.to_s
-
-    begin
-      new_station = Station.new(name)
-    rescue RailwayError => e
-      raise RailwayError.new({source_method: method(:station_menu_controller), source_args: [item]  }),
-            e.message
-    end
-
+    new_station = Station.new(name)
     @config[:stations] << new_station
-
     puts "Добавлена станция '#{name}'"
+  rescue RailwayError => e
+    puts e.message
+    retry
   end
 
   def change_station_title(chosen_station_number)
@@ -285,20 +294,16 @@ class Railway
     new_name = gets.chomp.to_s
     if new_name != ""
       config_station = @config[:stations][chosen_station_number]
-
-      begin
-        config_station.change_title(new_name)
-      rescue RailwayError => e
-        raise RailwayError.new({source_method: method(:change_station_title), source_args: [chosen_station_number] }),
-              e.message
-      end
-
+      config_station.change_title(new_name)
       puts "Задано новое имя станции '#{new_name}'"
     else
       name = @config[:stations][chosen_station_number].title
       @config[:stations].delete_at(chosen_station_number)
       puts "Станция '#{name}' успешно удалена"
     end
+  rescue RailwayError => e
+    puts e.message
+    retry
   end
 
 # Train
@@ -307,48 +312,46 @@ class Railway
     print "Для создания грузового поезда введите 1, пассажирского - 2: "
     type_item = gets.chomp.to_s
 
-    begin
-      if type_item == "1"
-        print "Введите номер поезда: "
-        number = gets.chomp.to_s
-        new_train = CargoTrain.new(number)
-        @config[:trains] << new_train
-        puts "Добавлен грузовой поезд '#{number}'"
-      elsif type_item == "2"
-        print "Введите номер поезда: "
-        number = gets.chomp.to_s
-        new_train = PassengerTrain.new(number)
-        @config[:trains] << new_train
-        puts "Добавлен пассажирский поезд '#{number}'"
-      else
-        raise RailwayError.new({source_method: method(:create_train), source_args: [item] }),
-              "Произошла ошибка ввода, пожалуйста повторите"
-      end
-    rescue RailwayError => e
-      raise RailwayError.new({source_method: method(:create_train), source_args: [item] }),
-            e.message
+    if type_item == "1"
+      print "Введите номер поезда: "
+      number = gets.chomp.to_s
+      new_train = CargoTrain.new(number)
+      @config[:trains] << new_train
+      puts "Добавлен грузовой поезд '#{number}'"
+    elsif type_item == "2"
+      print "Введите номер поезда: "
+      number = gets.chomp.to_s
+      new_train = PassengerTrain.new(number)
+      @config[:trains] << new_train
+      puts "Добавлен пассажирский поезд '#{number}'"
+    else
+      raise RailwayError.new, "Произошла ошибка ввода, пожалуйста повторите"
     end
+
     trains_menu
+  rescue RailwayError => e
+    puts e.message
+    retry
   end
 
   def change_train_number(chosen_train_number)
     print "Введите новый номер поезда: "
     new_number = gets.chomp.to_s
     config_train = @config[:trains][chosen_train_number]
-    begin
-      config_train.change_number(new_number)
-    rescue RailwayError => e
-      raise RailwayError.new({source_method: method(:change_train_number), source_args: [chosen_train_number] }),
-            e.message
-    end
+    config_train.change_number(new_number)
+
     puts "Задан новый номер поезда '#{new_number}'"
     train_menu(chosen_train_number)
+  rescue RailwayError => e
+    puts e.message
+    retry
   end
 
   def remove_train(chosen_train_number)
     number = @config[:trains][chosen_train_number].number
     type = @config[:trains][chosen_train_number].type
     @config[:trains].delete_at(chosen_train_number)
+
     puts "#{type} поезд '#{number}' успешно удален"
   end
 
@@ -387,80 +390,72 @@ class Railway
       if (1..@config[:routes].size).include?(route_item)
         train = @config[:trains][chosen_train_number]
         route = @config[:routes][route_item - 1]
-        begin
-          train.add_route(route)
-        rescue RailwayError => e
-          raise RailwayError.new({source_method: method(:change_train_routes), source_args: [chosen_train_number] }),
-                e.message
-        end
+        train.add_route(route)
         puts "К поезду '#{train.type} #{train.number}' привязан маршрут '#{route.all_stations[0].title} - #{route.all_stations[-1].title}'"
         trains_menu
       else
-        raise RailwayError.new({source_method: method(:change_train_routes), source_args: [chosen_train_number] }),
-              "Такого маршрута не существует, вы были возвращены на предыдущий экран"
+        raise RailwayError.new, "Такого маршрута не существует"
       end
     else
-      raise RailwayError.new({source_method: method(:change_train_routes), source_args: [chosen_train_number] }),
-            "Такого пункта не существует, повторите ввод"
+      raise RailwayError.new, "Такого пункта не существует, повторите ввод"
     end
+  rescue RailwayError => e
+    puts e.message
+    retry
   end
 
   def add_carriage_to_train(chosen_train_number)
-    begin
-      if @config[:trains][chosen_train_number].type == "Пассажирский"
-        new_carriage = PassengerCarriage.new
-        @config[:trains][chosen_train_number].add_passenger_carriage(new_carriage)
-      else
-        new_carriage = CargoCarriage.new
-        @config[:trains][chosen_train_number].add_cargo_carriage(new_carriage)
-      end
-      puts "К поезду #{@config[:trains][chosen_train_number].number} добавлен вагон"
-    rescue RailwayError => e
-      raise RailwayError.new({source_method: method(:train_menu), source_args: [chosen_train_number] }),
-            e.message
+    if @config[:trains][chosen_train_number].type == "Пассажирский"
+      new_carriage = PassengerCarriage.new
+      @config[:trains][chosen_train_number].add_passenger_carriage(new_carriage)
+    else
+      new_carriage = CargoCarriage.new
+      @config[:trains][chosen_train_number].add_cargo_carriage(new_carriage)
     end
+
+    puts "К поезду #{@config[:trains][chosen_train_number].number} добавлен вагон"
+    train_menu(chosen_train_number)
+  rescue RailwayError => e
+    puts e.message
+    train_menu(chosen_train_number)
   end
 
   def remove_carriage_from_train(chosen_train_number)
     last_carriage = @config[:trains][chosen_train_number].carriages[-1]
 
-    begin
-      if @config[:trains][chosen_train_number].type == "Пассажирский"
-        @config[:trains][chosen_train_number].remove_passenger_carriage(last_carriage)
-      else
-        @config[:trains][chosen_train_number].remove_cargo_carriage(last_carriage)
-      end
-      puts "От поезда #{@config[:trains][chosen_train_number].number} удалён вагон"
-    rescue RailwayError => e
-      raise RailwayError.new({source_method: method(:train_menu), source_args: [chosen_train_number] }),
-            e.message
+    if @config[:trains][chosen_train_number].type == "Пассажирский"
+      @config[:trains][chosen_train_number].remove_passenger_carriage(last_carriage)
+    else
+      @config[:trains][chosen_train_number].remove_cargo_carriage(last_carriage)
     end
+
+    puts "От поезда #{@config[:trains][chosen_train_number].number} удалён вагон"
+    train_menu(chosen_train_number)
+  rescue RailwayError => e
+    puts e.message
+    train_menu(chosen_train_number)
   end
 
   def train_move_forward(chosen_train_number)
     train = @config[:trains][chosen_train_number]
+    train.move_forward
 
-    begin
-      train.move_forward
-      puts "Поезд #{train.number} прибыл на станцию: #{train.show_station("current").title}"
-      train_menu(chosen_train_number)
-    rescue RailwayError => e
-      raise RailwayError.new({source_method: method(:train_menu), source_args: [chosen_train_number] }),
-            e.message
-    end
+    puts "Поезд #{train.number} прибыл на станцию: #{train.show_station("current").title}"
+    train_menu(chosen_train_number)
+  rescue RailwayError => e
+    puts e.message
+    train_menu(chosen_train_number)
   end
 
   def train_move_back(chosen_train_number)
     train = @config[:trains][chosen_train_number]
+    train.move_back
 
-    begin
-      train.move_back
-      puts "Поезд #{train.number} прибыл на станцию: #{train.show_station("current").title}"
-      train_menu(chosen_train_number)
-    rescue RailwayError => e
-      raise RailwayError.new({source_method: method(:train_menu), source_args: [chosen_train_number] }),
-            e.message
-    end
+    puts "Поезд #{train.number} прибыл на станцию: #{train.show_station("current").title}"
+    train_menu(chosen_train_number)
+  rescue RailwayError => e
+    puts e.message
+    train_menu(chosen_train_number)
   end
 
   def get_train_route(train)
@@ -482,27 +477,21 @@ class Railway
     end_station_item = gets.chomp.to_i
 
     if start_station_item == end_station_item
-      raise RailwayError.new({source_method: method(:routes_menu_controller), source_args: [item] }),
-            "Такого пункта не существует, повторите ввод"
+      raise RailwayError.new, "Начальная и конечная станция не могут совпадать"
     else
       if (@config[:stations][start_station_item - 1] != nil) && (@config[:stations][end_station_item - 1] != nil)
-        begin
-          new_route = Route.new(@config[:stations][start_station_item - 1], @config[:stations][end_station_item - 1])
-        rescue RailwayError => e
-          raise RailwayError.new({source_method: method(:create_route), source_args: [item] }),
-                e.message
-        end
-
+        new_route = Route.new(@config[:stations][start_station_item - 1], @config[:stations][end_station_item - 1])
         @config[:routes] << new_route
 
         puts "Добавлен маршрут '#{@config[:stations][start_station_item - 1].title} - #{@config[:stations][end_station_item - 1].title}'"
         routes_menu
-
       else
-        raise RailwayError.new({source_method: method(:routes_menu_controller), source_args: [item] }),
-              "Произошла ошибка ввода пунктов меню, повторите ввод"
+        raise RailwayError.new, "Произошла ошибка ввода пунктов меню, повторите ввод"
       end
     end
+  rescue RailwayError => e
+    puts e.message
+    retry
   end
 
   def add_station_to_route(chosen_route_number)
@@ -520,22 +509,18 @@ class Railway
       target_station = @config[:stations][station_item - 1]
 
       if (all_route_stations.size == 2) && (all_route_stations.include?(target_station))
-        raise RailwayError.new({source_method: method(:route_menu), source_args: [chosen_route_number] }),
-              "Нельзя добавлять начальную и конечную стации как промежуточную, повторите ввод"
+        raise RailwayError.new, "Нельзя добавлять начальную и конечную стации как промежуточную, повторите ввод"
       else
-        begin
-          @config[:routes][chosen_route_number].add_station(target_station)
-        rescue RailwayError => e
-          raise RailwayError.new({source_method: method(:add_station_to_route), source_args: [chosen_route_number] }),
-                e.message
-        end
+        @config[:routes][chosen_route_number].add_station(target_station)
         puts "Станция '#{target_station.title}' добавлена в маршрут"
         routes_menu
       end
     else
-      raise RailwayError.new({source_method: method(:add_station_to_route), source_args: [chosen_route_number] }),
-            "Вы ввели неверный номер станции, повторите ввод"
+      raise RailwayError.new, "Вы ввели неверный номер станции, повторите ввод"
     end
+  rescue RailwayError => e
+    puts e.message
+    retry
   end
 
   def remove_station_from_route(chosen_route_number)
@@ -548,18 +533,15 @@ class Railway
 
     if (1..@config[:stations].size).include?(station_item)
       target_station = @config[:stations][station_item - 1]
-      begin
-        @config[:routes][chosen_route_number].remove_station(target_station)
-      rescue RailwayError => e
-        raise RailwayError.new({source_method: method(:route_menu), source_args: [chosen_route_number] }),
-              e.message
-      end
+      @config[:routes][chosen_route_number].remove_station(target_station)
       puts "Станция '#{target_station.title}' удалена из маршрута"
       routes_menu
     else
-      raise RailwayError.new({source_method: method(:remove_station_from_route), source_args: [chosen_route_number] }),
-            "Вы ввели неверный номер станции, повторите ввод"
+      raise RailwayError.new, "Вы ввели неверный номер станции"
     end
+  rescue RailwayError => e
+    puts e.message
+    routes_menu
   end
 
   def remove_route(chosen_route_number)
@@ -568,13 +550,8 @@ class Railway
     puts "Маршрут '#{route_name}' успешно удалён"
   end
 
-  def run(args = nil, method = method(:main_menu))
-    args.nil? ? method.call : method.call(*args)
-  rescue RailwayError => e
-    puts e.message
-    source_method = e.data[:source_method]
-    source_args  = e.data[:source_args] ? e.data[:source_args] : nil
-    run(source_args, source_method)
+  def run
+   main_menu
   end
 end
 
