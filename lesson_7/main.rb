@@ -70,6 +70,45 @@ class Railway
     end
   end
 
+  def carriages_menu(chosen_train_number)
+    puts "Добавьте или измените существующие вагоны"
+    puts "1. Добавить новый вагон"
+    if @config[:trains][chosen_train_number].carriages
+      show_train_carriages(chosen_train_number)
+    end
+    back_menu_number = (@config[:trains][chosen_train_number].carriages.size + 2)
+    puts "#{back_menu_number}. Назад"
+    print "Выберите пункт меню: "
+    item = gets.chomp.tr(" ", "").to_i
+    if item == back_menu_number
+      train_menu(chosen_train_number)
+    else
+      carriages_menu_controller(item, chosen_train_number)
+    end
+  end
+
+  def carriage_menu(chosen_carriage_number, chosen_train_number)
+    train = @config[:trains][chosen_train_number]
+    carriage = train.carriages[chosen_carriage_number]
+
+    if train.type == "Грузовой"
+      puts "Информация о грузовом вагоне - Места занято: #{carriage.used_capacity} из #{carriage.capacity}"
+      puts "1. Занять необходимое количество места"
+    elsif train.type == "Пассажирский"
+      puts "Информация о пассажирском вагоне - Мест занято: #{carriage.used_seats} из #{carriage.seats}"
+      puts "1. Использовать одно место"
+    end
+    puts "2. Удалить вагон"
+    puts "3. К выбору вагона"
+    print "Выберите вариант: "
+    item = gets.chomp.to_i
+    if item == 3
+      carriages_menu(chosen_train_number)
+    else
+      carriage_menu_controller(item, chosen_carriage_number, chosen_train_number)
+    end
+  end
+
   def train_menu(chosen_train_number)
     target_train = @config[:trains][chosen_train_number]
     train_carriages_count = target_train.carriages.size
@@ -88,15 +127,14 @@ class Railway
     puts "1. Изменить номер поезда"
     puts "2. Задать скорость поезду"
     puts "3. Добавить или заменить маршрут поезда"
-    puts "4. Добавить вагон к поезду"
-    puts "5. Отцепить вагон от поезда"
-    puts "6. Отправить поезд на следующую станцию"
-    puts "7. Отправить поезд на предыдыдущую станцию"
-    puts "8. Удалить поезд"
-    puts "9. Назад"
+    puts "4. Управление вагонами поезда"
+    puts "5. Отправить поезд на следующую станцию"
+    puts "6. Отправить поезд на предыдыдущую станцию"
+    puts "7. Удалить поезд"
+    puts "8. Назад"
     print "Выберите вариант: "
     item = gets.chomp.to_i
-    if item == 9
+    if item == 8
       trains_menu
     else
       train_menu_controller(item, chosen_train_number)
@@ -221,14 +259,12 @@ class Railway
         train_menu(chosen_train_number)
       end
     when 4
-      add_carriage_to_train(chosen_train_number)
+      carriages_menu(chosen_train_number)
     when 5
-      remove_carriage_from_train(chosen_train_number)
-    when 6
       train_move_forward(chosen_train_number)
-    when 7
+    when 6
       train_move_back(chosen_train_number)
-    when 8
+    when 7
       remove_train(chosen_train_number)
       trains_menu
     else
@@ -271,6 +307,40 @@ class Railway
   rescue RailwayError => e
     puts e.message
     routes_menu
+  end
+
+  def carriages_menu_controller(item, chosen_train_number)
+    if @config[:trains][chosen_train_number].carriages.empty?
+      last_carriage_index = 2
+    else
+      last_carriage_index = @config[:trains][chosen_train_number].carriages.size + 1
+    end
+
+    case item
+    when 1
+      add_carriage_to_train(chosen_train_number)
+    when 2..last_carriage_index
+      carriage_menu(item - 2, chosen_train_number)
+    else
+      raise RailwayError.new, "Произошла ошибка ввода пункта меню, вы были возвращены на предыдущий экран"
+    end
+  rescue RailwayError => e
+    puts e.message
+    carriages_menu(chosen_train_number)
+  end
+
+  def carriage_menu_controller(item, chosen_carriage_number, chosen_train_number)
+    case item
+    when 1
+      change_carriage_space(chosen_carriage_number, chosen_train_number)
+    when 2
+      remove_carriage_from_train(chosen_carriage_number, chosen_train_number)
+    else
+      raise RailwayError.new, "Произошла ошибка ввода пункта меню, вы были возвращены на предыдущий экран"
+    end
+  rescue RailwayError => e
+    puts e.message
+    carriages_menu(chosen_train_number)
   end
 
 # Helpers
@@ -404,36 +474,55 @@ class Railway
     retry
   end
 
+  def show_train_carriages(chosen_train_number)
+    train = @config[:trains][chosen_train_number]
+    if train.type == "Грузовой"
+      train.iterate_carriages do |carriage, number|
+          puts "#{number + 1}. Вагон #{number}. Количество свободного места - #{carriage.free_capacity}, занятого - #{carriage.used_capacity}"
+        end
+    elsif train.type == "Пассажирский"
+      train.iterate_carriages do |carriage, number|
+        puts "#{number + 1}. Вагон #{number}. Количество свободных мест - #{carriage.vacant_seats}, занятых - #{carriage.used_seats}"
+      end
+    end
+  rescue RailwayError => e
+    puts e.message
+  end
+
   def add_carriage_to_train(chosen_train_number)
     if @config[:trains][chosen_train_number].type == "Пассажирский"
-      new_carriage = PassengerCarriage.new
+      print "Введите количество мест в пассажирском вагоне: "
+      seats = gets.chomp.to_i
+      new_carriage = PassengerCarriage.new(seats)
       @config[:trains][chosen_train_number].add_passenger_carriage(new_carriage)
     else
-      new_carriage = CargoCarriage.new
+      print "Введите объем грузового вагона: "
+      capacity = gets.chomp.to_i
+      new_carriage = CargoCarriage.new(capacity)
       @config[:trains][chosen_train_number].add_cargo_carriage(new_carriage)
     end
 
     puts "К поезду #{@config[:trains][chosen_train_number].number} добавлен вагон"
-    train_menu(chosen_train_number)
+    carriages_menu(chosen_train_number)
   rescue RailwayError => e
     puts e.message
-    train_menu(chosen_train_number)
+    carriages_menu(chosen_train_number)
   end
 
-  def remove_carriage_from_train(chosen_train_number)
-    last_carriage = @config[:trains][chosen_train_number].carriages[-1]
+  def remove_carriage_from_train(chosen_carriage_number, chosen_train_number)
+    target_carriage = @config[:trains][chosen_train_number].carriages[chosen_carriage_number]
 
     if @config[:trains][chosen_train_number].type == "Пассажирский"
-      @config[:trains][chosen_train_number].remove_passenger_carriage(last_carriage)
+      @config[:trains][chosen_train_number].remove_passenger_carriage(target_carriage)
     else
-      @config[:trains][chosen_train_number].remove_cargo_carriage(last_carriage)
+      @config[:trains][chosen_train_number].remove_cargo_carriage(target_carriage)
     end
 
     puts "От поезда #{@config[:trains][chosen_train_number].number} удалён вагон"
-    train_menu(chosen_train_number)
+    carriages_menu(chosen_train_number)
   rescue RailwayError => e
     puts e.message
-    train_menu(chosen_train_number)
+    carriages_menu(chosen_train_number)
   end
 
   def train_move_forward(chosen_train_number)
@@ -462,6 +551,26 @@ class Railway
     train_index = @config[:trains].index(train)
     config_train = @config[:trains][train_index]
     config_train.route != nil ? config_train.route : nil
+  end
+
+  def change_carriage_space(chosen_carriage_number, chosen_train_number)
+    train = @config[:trains][chosen_train_number]
+    carriage = train.carriages[chosen_carriage_number]
+
+    if train.type == "Грузовой"
+      print "Введите количество места, которое хотите занять: "
+      capacity = gets.chomp.to_i
+      carriage.use_capacity(capacity)
+      puts "В вагоне занято #{capacity} места"
+    elsif
+      carriage.use_seat
+      puts "В вагоне занято одно пассажирское место"
+    end
+
+    carriage_menu(chosen_carriage_number, chosen_train_number)
+  rescue RailwayError => e
+    puts e.message
+    carriage_menu(chosen_carriage_number, chosen_train_number)
   end
 
 
