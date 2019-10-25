@@ -211,11 +211,7 @@ class Railway
           station_menu
         else
           puts "Список поездов на станции '#{@config[:stations][item - 2].title}'"
-          if @config[:stations][item - 2].all_trains.size != 0
-            @config[:stations][item - 2].show_trains
-          else
-            puts "Поезда отсутствуют"
-          end
+          @config[:stations][item - 2].iterate_trains { |train, number|  puts "#{number}. #{train.number}" }
           station_menu
         end
       else
