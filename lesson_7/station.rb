@@ -56,7 +56,7 @@ class Station
     if all_trains.empty?
       raise RailwayError.new, "На станции '#{title}' отсутствуют поезда"
     else
-      all_trains.each { |train| iterator.call(train) }
+      all_trains.each.with_index(1) { |train, number| iterator.call(train, number) }
     end
   end
 
