@@ -109,11 +109,11 @@ class Train
     end
   end
 
-  def iterate_carriages(&iterator)
+  def each_carriage(&iterator)
     if @carriages.empty?
       raise RailwayError.new, "У поезда '#{number}' отсутствуют вагоны"
     else
-      @carriages.each.with_index(1) { |carriage, number| iterator.call(carriage, number) }
+      @carriages.each.with_index(1) { |carriage, number| yield(carriage, number) }
     end
   end
 
