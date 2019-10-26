@@ -91,10 +91,10 @@ class Railway
     train = @config[:trains][chosen_train_number]
     carriage = train.carriages[chosen_carriage_number]
 
-    if train.type == "Грузовой"
+    if carriage.instance_of?(CargoCarriage)
       puts "Информация о грузовом вагоне - Места занято: #{carriage.used_capacity} из #{carriage.capacity}"
       puts "1. Занять необходимое количество места"
-    elsif train.type == "Пассажирский"
+    elsif carriage.instance_of?(PassengerCarriage)
       puts "Информация о пассажирском вагоне - Мест занято: #{carriage.used_seats} из #{carriage.seats}"
       puts "1. Использовать одно место"
     end
@@ -211,7 +211,7 @@ class Railway
           station_menu
         else
           puts "Список поездов на станции '#{@config[:stations][item - 2].title}'"
-          @config[:stations][item - 2].iterate_trains { |train, number|  puts "#{number}. #{train.number}" }
+          @config[:stations][item - 2].each_train { |train, number|  puts "#{number}. #{train.number}" }
           station_menu
         end
       else
@@ -472,12 +472,14 @@ class Railway
 
   def show_train_carriages(chosen_train_number)
     train = @config[:trains][chosen_train_number]
-    if train.type == "Грузовой"
-      train.iterate_carriages do |carriage, number|
+    first_carriage = @config[:trains][chosen_train_number].carriages[0]
+
+    if first_carriage.instance_of?(CargoCarriage)
+      train.each_carriage do |carriage, number|
           puts "#{number + 1}. Вагон #{number}. Количество свободного места - #{carriage.free_capacity}, занятого - #{carriage.used_capacity}"
         end
-    elsif train.type == "Пассажирский"
-      train.iterate_carriages do |carriage, number|
+    elsif first_carriage.instance_of?(PassengerCarriage)
+      train.each_carriage do |carriage, number|
         puts "#{number + 1}. Вагон #{number}. Количество свободных мест - #{carriage.vacant_seats}, занятых - #{carriage.used_seats}"
       end
     end
@@ -553,12 +555,12 @@ class Railway
     train = @config[:trains][chosen_train_number]
     carriage = train.carriages[chosen_carriage_number]
 
-    if train.type == "Грузовой"
+    if carriage.instance_of?(CargoCarriage)
       print "Введите количество места, которое хотите занять: "
       capacity = gets.chomp.to_i
       carriage.use_capacity(capacity)
       puts "В вагоне занято #{capacity} места"
-    elsif
+    elsif carriage.instance_of?(PassengerCarriage)
       carriage.use_seat
       puts "В вагоне занято одно пассажирское место"
     end
