@@ -52,11 +52,11 @@ class Station
     puts "Количество поездов на станции '#{@title}': Грузовых - #{@cargo_trains.size}, Пассажирских - #{@passenger_trains.size}"
   end
 
-  def iterate_trains(&iterator)
+  def each_train(&iterator)
     if all_trains.empty?
       raise RailwayError.new, "На станции '#{title}' отсутствуют поезда"
     else
-      all_trains.each.with_index(1) { |train, number| iterator.call(train, number) }
+      all_trains.each.with_index(1) { |train, number| yield(train, number) }
     end
   end
 
