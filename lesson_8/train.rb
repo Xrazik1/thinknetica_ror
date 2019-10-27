@@ -41,8 +41,9 @@ class Train
   end
 
   def move_back
-    prev_station_result = prev_station
     raise RailwayError.new, 'Задайте маршрут чтобы управлять поездом' if @route.nil?
+
+    prev_station_result = prev_station
     raise RailwayError.new, "Поезд #{@number} уже на начальной станции" if prev_station_result.nil?
     raise RailwayError.new, 'Поезд не может менять станции так как стоит на месте' if @current_speed.zero?
 
@@ -53,9 +54,10 @@ class Train
   end
 
   def move_forward
-    next_station_result = next_station
     raise RailwayError.new, 'Задайте маршрут чтобы управлять поездом' if @route.nil?
-    raise RailwayError.new, "Поезд #{@number} уже на начальной станции" if next_station_result.nil?
+
+    next_station_result = next_station
+    raise RailwayError.new, "Поезд #{@number} уже на конечной станции" if next_station_result.nil?
     raise RailwayError.new, 'Поезд не может менять станции так как стоит на месте' if @current_speed.zero?
 
     @current_station.send_train(self)
