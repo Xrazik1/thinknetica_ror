@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative 'railway_error'
 require_relative 'general_methods'
 
@@ -24,18 +26,18 @@ class Station
   end
 
   def accept_train(train)
-    if train.type == "Грузовой"
+    if train.type == 'Грузовой'
       @cargo_trains << train
-    elsif train.type == "Пассажирский"
+    elsif train.type == 'Пассажирский'
       @passenger_trains << train
     end
   end
 
   def send_train(train)
     if all_trains.include? train
-      if train.type == "Грузовой"
+      if train.type == 'Грузовой'
         @cargo_trains.delete(train)
-      elsif train.type == "Пассажирский"
+      elsif train.type == 'Пассажирский'
         @passenger_trains.delete(train)
       end
       true
@@ -52,7 +54,7 @@ class Station
     puts "Количество поездов на станции '#{@title}': Грузовых - #{@cargo_trains.size}, Пассажирских - #{@passenger_trains.size}"
   end
 
-  def each_train(&iterator)
+  def each_train
     if all_trains.empty?
       raise RailwayError.new, "На станции '#{title}' отсутствуют поезда"
     else
@@ -63,6 +65,8 @@ class Station
   protected
 
   def validate!
-    raise RailwayError.new, "Название станции не может быть пустой строкой!" if title == ""
+    if title == ''
+      raise RailwayError.new, 'Название станции не может быть пустой строкой!'
+    end
   end
 end

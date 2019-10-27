@@ -1,4 +1,6 @@
-require_relative "train"
+# frozen_string_literal: true
+
+require_relative 'train'
 require_relative 'railway_error'
 
 class PassengerTrain < Train
@@ -6,14 +8,14 @@ class PassengerTrain < Train
 
   def initialize(number)
     super(number)
-    @type = "Пассажирский"
+    @type = 'Пассажирский'
   end
 
   def add_passenger_carriage(carriage)
     if @current_speed == 0
       @carriages.push(carriage)
     else
-      raise RailwayError.new, "Поезд не может прицеплять вагоны на ходу"
+      raise RailwayError.new, 'Поезд не может прицеплять вагоны на ходу'
     end
   end
 
@@ -25,7 +27,7 @@ class PassengerTrain < Train
         raise RailwayError.new, "У поезда #{number} отсутствуют вагоны"
       end
     else
-      raise RailwayError.new, "Поезд не может отцеплять вагоны на ходу"
+      raise RailwayError.new, 'Поезд не может отцеплять вагоны на ходу'
     end
   end
 end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative 'station'
 require_relative 'railway_error'
 require_relative 'general_methods'
@@ -35,7 +37,7 @@ class Route
         raise RailwayError.new, "Станция '#{station.title}' отсутствует в маршруте"
       end
     else
-      raise RailwayError.new, "Нельзя изменять начальную и конечную станцию, создайте новый маршрут"
+      raise RailwayError.new, 'Нельзя изменять начальную и конечную станцию, создайте новый маршрут'
     end
   end
 
@@ -46,7 +48,11 @@ class Route
   protected
 
   def validate!
-    raise RailwayError.new, "Начальная станция должна быть объектом класса 'Станция'" unless @start_station.instance_of?(Station)
-    raise RailwayError.new, "Конечная станция должна быть объектом класса 'Станция'" unless @end_station.instance_of?(Station)
+    unless @start_station.instance_of?(Station)
+      raise RailwayError.new, "Начальная станция должна быть объектом класса 'Станция'"
+    end
+    unless @end_station.instance_of?(Station)
+      raise RailwayError.new, "Конечная станция должна быть объектом класса 'Станция'"
+    end
   end
 end

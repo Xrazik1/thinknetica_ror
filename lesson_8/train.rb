@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative 'railway_error'
 require_relative 'general_methods'
 
@@ -9,7 +11,7 @@ class Train
   attr_reader :carriages
   attr_reader :route
 
-  NUMBER_FORMAT = /^[a-z0-9]{3}-?[a-z0-9]{2}$/i
+  NUMBER_FORMAT = /^[a-z0-9]{3}-?[a-z0-9]{2}$/i.freeze
 
   def initialize(number)
     @number = number
@@ -39,11 +41,11 @@ class Train
   end
 
   def move_back
-    if @route != nil
+    if !@route.nil?
       if @current_speed != 0
         prev_station_result = prev_station
 
-        if prev_station_result != nil
+        if !prev_station_result.nil?
           @current_station.send_train(self)
           prev_station_result.accept_train(self)
           @current_station = prev_station_result
@@ -53,20 +55,19 @@ class Train
           raise RailwayError.new, "Поезд #{@number} уже на начальной станции"
         end
       else
-        raise RailwayError.new, "Поезд не может менять станции так как стоит на месте"
+        raise RailwayError.new, 'Поезд не может менять станции так как стоит на месте'
       end
     else
-      raise RailwayError.new, "Задайте маршрут чтобы управлять поездом"
+      raise RailwayError.new, 'Задайте маршрут чтобы управлять поездом'
     end
-
   end
 
   def move_forward
-    if @route != nil
+    if !@route.nil?
       if @current_speed != 0
         next_station_result = next_station
 
-        if next_station_result != nil
+        if !next_station_result.nil?
           @current_station.send_train(self)
           next_station_result.accept_train(self)
           @current_station = next_station_result
@@ -76,40 +77,39 @@ class Train
           raise RailwayError.new, "Поезд #{@number} уже на конечной станции"
         end
       else
-        raise RailwayError.new, "Поезд не может менять станции так как стоит на месте"
+        raise RailwayError.new, 'Поезд не может менять станции так как стоит на месте'
       end
     else
-      raise RailwayError.new, "Задайте маршрут чтобы управлять поездом"
+      raise RailwayError.new, 'Задайте маршрут чтобы управлять поездом'
     end
   end
 
-
   def show_station(which)
     case which
-    when "current"
-      return @current_station
-    when "previous"
+    when 'current'
+      @current_station
+    when 'previous'
       prev_station_result = prev_station
 
-      if prev_station_result != nil
+      if !prev_station_result.nil?
         return prev_station_result
       else
-        puts "Поезд на начальной станции"
+        puts 'Поезд на начальной станции'
       end
-    when "next"
+    when 'next'
       next_station_result = next_station
 
-      if next_station_result != nil
+      if !next_station_result.nil?
         return next_station_result
       else
-        puts "Поезд на конечной станции"
+        puts 'Поезд на конечной станции'
       end
     else
       puts "Такого направления не существует (#{action})"
     end
   end
 
-  def each_carriage(&iterator)
+  def each_carriage
     if @carriages.empty?
       raise RailwayError.new, "У поезда '#{number}' отсутствуют вагоны"
     else
@@ -120,8 +120,12 @@ class Train
   protected
 
   def validate!
-    raise RailwayError.new, "Номер поезда не может быть пустой строкой!" if number == ""
-    raise RailwayError.new, "Номер поезда не соответствует формату" if number !~ NUMBER_FORMAT
+    if number == ''
+      raise RailwayError.new, 'Номер поезда не может быть пустой строкой!'
+    end
+    if number !~ NUMBER_FORMAT
+      raise RailwayError.new, 'Номер поезда не соответствует формату'
+    end
   end
 
   private
@@ -132,8 +136,6 @@ class Train
 
     if target_station_index != last_possible_station_index
       @route.all_stations[target_station_index]
-    else
-      nil
     end
   end
 
@@ -143,8 +145,6 @@ class Train
 
     if target_station_index != last_possible_station_index
       @route.all_stations[target_station_index]
-    else
-      nil
     end
   end
 end
