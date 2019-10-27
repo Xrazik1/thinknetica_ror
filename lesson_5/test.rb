@@ -40,7 +40,7 @@ puts "Список всех существующих станций"
 Station.all_stations.each.with_index(1) {|station, number| puts "#{number}. #{station.title}"}
 
 print "Экземпляр пассажирского поезда с номером 102: "
-puts PassengerTrain.find("101")
+puts PassengerTrain.find("102")
 
 route1.add_station(station3)
 route1.add_station(station4)
