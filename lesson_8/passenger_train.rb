@@ -12,22 +12,15 @@ class PassengerTrain < Train
   end
 
   def add_passenger_carriage(carriage)
-    if @current_speed == 0
-      @carriages.push(carriage)
-    else
-      raise RailwayError.new, 'Поезд не может прицеплять вагоны на ходу'
-    end
+    raise RailwayError.new, 'Поезд не может прицеплять вагоны на ходу' unless @current_speed.zero?
+
+    @carriages.push(carriage)
   end
 
   def remove_passenger_carriage(carriage)
-    if @current_speed == 0
-      if @carriages.include?(carriage)
-        @carriages.delete(carriage)
-      else
-        raise RailwayError.new, "У поезда #{number} отсутствуют вагоны"
-      end
-    else
-      raise RailwayError.new, 'Поезд не может отцеплять вагоны на ходу'
-    end
+    raise RailwayError.new, 'Поезд не может отцеплять вагоны на ходу' unless @current_speed.zero?
+    raise RailwayError.new, "У поезда #{number} отсутствуют вагоны" unless @carriages.include?(carriage)
+
+    @carriages.delete(carriage)
   end
 end

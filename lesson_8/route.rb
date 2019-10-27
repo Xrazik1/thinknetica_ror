@@ -20,25 +20,22 @@ class Route
   end
 
   def add_station(station)
-    if @middle_stations.include? station
+    if @middle_stations.include?(station)
       raise RailwayError.new, "Станция '#{station.title}' уже есть в маршруте"
-    else
-      @middle_stations << station
-      true
     end
+
+    @middle_stations << station
+    true
   end
 
   def remove_station(station)
-    if (station != @start_station) && (station != @end_station)
-      if @middle_stations.include? station
-        @middle_stations.delete(station)
-        true
-      else
-        raise RailwayError.new, "Станция '#{station.title}' отсутствует в маршруте"
-      end
-    else
+    unless (station != @start_station) && (station != @end_station)
       raise RailwayError.new, 'Нельзя изменять начальную и конечную станцию, создайте новый маршрут'
     end
+    raise RailwayError.new, "Станция '#{station.title}' отсутствует в маршруте" unless @middle_stations.include?(station)
+
+    @middle_stations.delete(station)
+    true
   end
 
   def show_stations

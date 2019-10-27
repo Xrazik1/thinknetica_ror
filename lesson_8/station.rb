@@ -34,16 +34,14 @@ class Station
   end
 
   def send_train(train)
-    if all_trains.include? train
-      if train.type == 'Грузовой'
-        @cargo_trains.delete(train)
-      elsif train.type == 'Пассажирский'
-        @passenger_trains.delete(train)
-      end
-      true
-    else
-      raise RailwayError.new, "Поезд с номером #{train.number} отсутствует на станции: #{@title}"
+    raise RailwayError.new, "Поезд с номером #{train.number} отсутствует на станции: #{@title}" unless all_trains.include?(train)
+
+    if train.type == 'Грузовой'
+      @cargo_trains.delete(train)
+    elsif train.type == 'Пассажирский'
+      @passenger_trains.delete(train)
     end
+    true
   end
 
   def show_trains
@@ -55,18 +53,14 @@ class Station
   end
 
   def each_train
-    if all_trains.empty?
-      raise RailwayError.new, "На станции '#{title}' отсутствуют поезда"
-    else
-      all_trains.each.with_index(1) { |train, number| yield(train, number) }
-    end
+    raise RailwayError.new, "На станции '#{title}' отсутствуют поезда" if all_trains.empty?
+
+    all_trains.each.with_index(1) { |train, number| yield(train, number) }
   end
 
   protected
 
   def validate!
-    if title == ''
-      raise RailwayError.new, 'Название станции не может быть пустой строкой!'
-    end
+    raise RailwayError.new, 'Название станции не может быть пустой строкой!' if title == ''
   end
 end

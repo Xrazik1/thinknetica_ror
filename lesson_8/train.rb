@@ -41,47 +41,27 @@ class Train
   end
 
   def move_back
-    if !@route.nil?
-      if @current_speed != 0
-        prev_station_result = prev_station
+    prev_station_result = prev_station
+    raise RailwayError.new, 'Задайте маршрут чтобы управлять поездом' if @route.nil?
+    raise RailwayError.new, "Поезд #{@number} уже на начальной станции" if prev_station_result.nil?
+    raise RailwayError.new, 'Поезд не может менять станции так как стоит на месте' if @current_speed.zero?
 
-        if !prev_station_result.nil?
-          @current_station.send_train(self)
-          prev_station_result.accept_train(self)
-          @current_station = prev_station_result
-
-          true
-        else
-          raise RailwayError.new, "Поезд #{@number} уже на начальной станции"
-        end
-      else
-        raise RailwayError.new, 'Поезд не может менять станции так как стоит на месте'
-      end
-    else
-      raise RailwayError.new, 'Задайте маршрут чтобы управлять поездом'
-    end
+    @current_station.send_train(self)
+    prev_station_result.accept_train(self)
+    @current_station = prev_station_result
+    true
   end
 
   def move_forward
-    if !@route.nil?
-      if @current_speed != 0
-        next_station_result = next_station
+    next_station_result = next_station
+    raise RailwayError.new, 'Задайте маршрут чтобы управлять поездом' if @route.nil?
+    raise RailwayError.new, "Поезд #{@number} уже на начальной станции" if next_station_result.nil?
+    raise RailwayError.new, 'Поезд не может менять станции так как стоит на месте' if @current_speed.zero?
 
-        if !next_station_result.nil?
-          @current_station.send_train(self)
-          next_station_result.accept_train(self)
-          @current_station = next_station_result
-
-          true
-        else
-          raise RailwayError.new, "Поезд #{@number} уже на конечной станции"
-        end
-      else
-        raise RailwayError.new, 'Поезд не может менять станции так как стоит на месте'
-      end
-    else
-      raise RailwayError.new, 'Задайте маршрут чтобы управлять поездом'
-    end
+    @current_station.send_train(self)
+    next_station_result.accept_train(self)
+    @current_station = next_station_result
+    true
   end
 
   def show_station(which)
@@ -90,42 +70,30 @@ class Train
       @current_station
     when 'previous'
       prev_station_result = prev_station
+      return prev_station_result unless prev_station_result.nil?
 
-      if !prev_station_result.nil?
-        return prev_station_result
-      else
-        puts 'Поезд на начальной станции'
-      end
+      puts 'Поезд на начальной станции'
     when 'next'
       next_station_result = next_station
+      return next_station_result unless next_station_result.nil?
 
-      if !next_station_result.nil?
-        return next_station_result
-      else
-        puts 'Поезд на конечной станции'
-      end
+      puts 'Поезд на конечной станции'
     else
       puts "Такого направления не существует (#{action})"
     end
   end
 
   def each_carriage
-    if @carriages.empty?
-      raise RailwayError.new, "У поезда '#{number}' отсутствуют вагоны"
-    else
-      @carriages.each.with_index(1) { |carriage, number| yield(carriage, number) }
-    end
+    raise RailwayError.new, "У поезда '#{number}' отсутствуют вагоны" if @carriages.empty?
+
+    @carriages.each.with_index(1) { |carriage, number| yield(carriage, number) }
   end
 
   protected
 
   def validate!
-    if number == ''
-      raise RailwayError.new, 'Номер поезда не может быть пустой строкой!'
-    end
-    if number !~ NUMBER_FORMAT
-      raise RailwayError.new, 'Номер поезда не соответствует формату'
-    end
+    raise RailwayError.new, 'Номер поезда не может быть пустой строкой!' if number == ''
+    raise RailwayError.new, 'Номер поезда не соответствует формату' if number !~ NUMBER_FORMAT
   end
 
   private
@@ -134,17 +102,13 @@ class Train
     target_station_index = @route.all_stations.find_index(@current_station) - 1
     last_possible_station_index = -1
 
-    if target_station_index != last_possible_station_index
-      @route.all_stations[target_station_index]
-    end
+    return @route.all_stations[target_station_index] if target_station_index != last_possible_station_index
   end
 
   def next_station
     target_station_index = @route.all_stations.find_index(@current_station) + 1
     last_possible_station_index = @route.all_stations.length
 
-    if target_station_index != last_possible_station_index
-      @route.all_stations[target_station_index]
-    end
+    return @route.all_stations[target_station_index] if target_station_index != last_possible_station_index
   end
 end

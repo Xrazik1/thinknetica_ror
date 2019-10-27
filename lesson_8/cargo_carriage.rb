@@ -6,11 +6,9 @@ class CargoCarriage
   attr_reader :capacity
 
   def initialize(capacity)
-    if capacity <= 0
-      raise RailwayError.new, 'Объем вагона должен быть больше нуля'
-    else
-      @capacity = @free_capacity = capacity
-    end
+    raise RailwayError.new, 'Объем вагона должен быть больше нуля' if capacity <= 0
+
+    @capacity = @free_capacity = capacity
   end
 
   attr_reader :free_capacity
@@ -20,10 +18,8 @@ class CargoCarriage
   end
 
   def use_capacity(capacity)
-    if @free_capacity >= capacity
-      @free_capacity -= capacity
-    else
-      raise RailwayError.new, 'В вагоне отсутствует необходимый объем'
-    end
+    raise RailwayError.new, 'В вагоне отсутствует необходимый объем' unless @free_capacity >= capacity
+
+    @free_capacity -= capacity
   end
 end

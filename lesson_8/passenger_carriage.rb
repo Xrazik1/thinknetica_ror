@@ -6,11 +6,9 @@ class PassengerCarriage
   attr_reader :seats
 
   def initialize(seats)
-    if seats <= 0
-      raise RailwayError.new, 'Количество мест в вагоне должно быть больше нуля'
-    else
-      @seats = @vacant_seats = seats
-    end
+    raise RailwayError.new, 'Количество мест в вагоне должно быть больше нуля' if seats <= 0
+
+    @seats = @vacant_seats = seats
   end
 
   attr_reader :vacant_seats
@@ -20,10 +18,8 @@ class PassengerCarriage
   end
 
   def use_seat
-    if @vacant_seats != 0
-      @vacant_seats -= 1
-    else
-      raise RailwayError.new, 'В вагоне отсутствуют свободные места'
-    end
+    raise RailwayError.new, 'В вагоне отсутствуют свободные места' unless @vacant_seats != 0
+
+    @vacant_seats -= 1
   end
 end

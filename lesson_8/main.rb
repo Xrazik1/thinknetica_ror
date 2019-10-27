@@ -25,12 +25,12 @@ class Railway
     puts '4. Выход'
     print 'Выберите вариант: '
     item = gets.chomp.tr(' ', '').to_i
-    if (1..4).include?(item)
-      exit(true) if item == 4
-      main_menu_controller(item)
-    else
+    unless (1..4).include?(item)
       raise RailwayError.new, 'Данного пункта меню не существует, повторите ввод'
     end
+
+    exit(true) if item == 4
+    main_menu_controller(item)
   rescue RailwayError => e
     puts e.message
     retry
@@ -139,21 +139,23 @@ class Railway
   def routes_menu
     if @config[:stations].empty?
       raise RailwayError.new, 'Создайте хотя бы две станции чтобы создавать маршруты'
-    else
-      puts 'Добавьте или измените существующие маршруты'
-      puts '1. Добавить новый маршрут'
-
-      @config[:routes]&.each&.with_index(2) { |route, number| puts "#{number}. #{route.all_stations[0].title} - #{route.all_stations[-1].title}" }
-      back_menu_number = (@config[:routes].size + 2)
-      puts "#{back_menu_number}. Назад"
-      print 'Выберите пункт меню: '
-      item = gets.chomp.tr(' ', '').to_i
-      if item == back_menu_number
-        main_menu
-      else
-        routes_menu_controller(item)
-      end
     end
+
+    puts 'Добавьте или измените существующие маршруты'
+    puts '1. Добавить новый маршрут'
+    @config[:routes]&.each&.with_index(2) do |route, number|
+      puts "#{number}. #{route.all_stations[0].title} - #{route.all_stations[-1].title}"
+    end
+    back_menu_number = (@config[:routes].size + 2)
+    puts "#{back_menu_number}. Назад"
+    print 'Выберите пункт меню: '
+    item = gets.chomp.tr(' ', '').to_i
+    if item == back_menu_number
+      main_menu
+    else
+      routes_menu_controller(item)
+    end
+
   rescue RailwayError => e
     puts e.message
     main_menu
@@ -192,25 +194,25 @@ class Railway
     last_station_index = @config[:stations].empty? ? 2 : @config[:stations].size + 1
     case item
     when 1
-      create_station(item)
+      create_station
       station_menu
     when 2..last_station_index
       puts '1. Изменить название станции'
       puts '2. Показать список поездов на станции'
       print 'Выберите пункт меню: '
       station_item = gets.chomp.to_i
-      if (station_item == 1) || (station_item == 2)
-        if station_item == 1
-          change_station_title(item - 2)
-          station_menu
-        else
-          puts "Список поездов на станции '#{@config[:stations][item - 2].title}'"
-          @config[:stations][item - 2].each_train { |train, number|  puts "#{number}. #{train.number}" }
-          station_menu
-        end
-      else
+
+      unless (station_item == 1) || (station_item == 2)
         raise RailwayError.new, 'Произошла ошибка ввода пункта меню, вы были возвращены на предыдущий экран'
       end
+
+      if station_item == 1
+        change_station_title(item - 2)
+      else
+        puts "Список поездов на станции '#{@config[:stations][item - 2].title}'"
+        @config[:stations][item - 2].each_train { |train, number|  puts "#{number}. #{train.number}" }
+      end
+      station_menu
     else
       raise RailwayError.new, 'Произошла ошибка ввода пункта меню, вы были возвращены на предыдущий экран'
     end
@@ -223,7 +225,7 @@ class Railway
     last_train_index = @config[:trains].empty? ? 2 : @config[:trains].size + 1
     case item
     when 1
-      create_train(item)
+      create_train
     when 2..last_train_index
       train_menu(item - 2)
     else
@@ -244,10 +246,10 @@ class Railway
     when 3
       if @config[:routes].empty?
         raise RailwayError.new, 'У вас отсутствуют доступные маршруты, добавьте их'
-      else
-        change_train_routes(chosen_train_number)
-        train_menu(chosen_train_number)
       end
+
+      change_train_routes(chosen_train_number)
+      train_menu(chosen_train_number)
     when 4
       carriages_menu(chosen_train_number)
     when 5
@@ -337,7 +339,7 @@ class Railway
 
   # Station
 
-  def create_station(_item)
+  def create_station
     print 'Введите имя новой станции: '
     name = gets.chomp.to_s
     new_station = Station.new(name)
@@ -368,7 +370,7 @@ class Railway
 
   # Train
 
-  def create_train(_item)
+  def create_train
     print 'Для создания грузового поезда введите 1, пассажирского - 2: '
     type_item = gets.chomp.to_s
 
@@ -420,7 +422,7 @@ class Railway
     print 'На сколько увеличить скорость?(для полной остановки введите 0): '
     new_speed = gets.chomp.to_i
     config_train = @config[:trains][chosen_train_number]
-    if new_speed == 0
+    if new_speed.zero?
       config_train.stop
     else
       config_train.increase_speed_by(new_speed)
@@ -440,25 +442,27 @@ class Railway
 
     print 'Выберите пункт: '
     item = gets.chomp.to_i
-    if item == 1
-      puts 'Введите номер маршрута чтобы добавить его: '
-      @config[:routes].each.with_index(1) do |route, number|
-        puts "#{number}. Маршрут '#{route.all_stations[0].title} - #{route.all_stations[-1].title}'"
-      end
-      print 'Выберите маршрут: '
-      route_item = gets.chomp.to_i
-      if (1..@config[:routes].size).include?(route_item)
-        train = @config[:trains][chosen_train_number]
-        route = @config[:routes][route_item - 1]
-        train.add_route(route)
-        puts "К поезду '#{train.type} #{train.number}' привязан маршрут '#{route.all_stations[0].title} - #{route.all_stations[-1].title}'"
-        trains_menu
-      else
-        raise RailwayError.new, 'Такого маршрута не существует'
-      end
-    else
+
+    unless item == 1
       raise RailwayError.new, 'Такого пункта не существует, повторите ввод'
     end
+
+    puts 'Введите номер маршрута чтобы добавить его: '
+    @config[:routes].each.with_index(1) do |route, number|
+      puts "#{number}. Маршрут '#{route.all_stations[0].title} - #{route.all_stations[-1].title}'"
+    end
+    print 'Выберите маршрут: '
+    route_item = gets.chomp.to_i
+
+    unless (1..@config[:routes].size).include?(route_item)
+      raise RailwayError.new, 'Такого пункта не существует, повторите ввод'
+    end
+
+    train = @config[:trains][chosen_train_number]
+    route = @config[:routes][route_item - 1]
+    train.add_route(route)
+    puts "К поезду '#{train.type} #{train.number}' привязан маршрут '#{route.all_stations[0].title} - #{route.all_stations[-1].title}'"
+    trains_menu
   rescue RailwayError => e
     puts e.message
     retry
@@ -578,17 +582,17 @@ class Railway
 
     if start_station_item == end_station_item
       raise RailwayError.new, 'Начальная и конечная станция не могут совпадать'
-    else
-      if (@config[:stations][start_station_item - 1] != nil) && (@config[:stations][end_station_item - 1] != nil)
-        new_route = Route.new(@config[:stations][start_station_item - 1], @config[:stations][end_station_item - 1])
-        @config[:routes] << new_route
-
-        puts "Добавлен маршрут '#{@config[:stations][start_station_item - 1].title} - #{@config[:stations][end_station_item - 1].title}'"
-        routes_menu
-      else
-        raise RailwayError.new, 'Произошла ошибка ввода пунктов меню, повторите ввод'
-      end
     end
+
+    if @config[:stations][start_station_item - 1].nil? && @config[:stations][end_station_item - 1].nil?
+      raise RailwayError.new, 'Произошла ошибка ввода пунктов меню, повторите ввод'
+    end
+
+    new_route = Route.new(@config[:stations][start_station_item - 1], @config[:stations][end_station_item - 1])
+    @config[:routes] << new_route
+
+    puts "Добавлен маршрут '#{@config[:stations][start_station_item - 1].title} - #{@config[:stations][end_station_item - 1].title}'"
+    routes_menu
   rescue RailwayError => e
     puts e.message
     retry
@@ -605,19 +609,19 @@ class Railway
     print 'Введите номер станции, которую хотите добавить: '
     station_item = gets.chomp.to_i
 
-    if (1..@config[:stations].size).include?(station_item)
-      target_station = @config[:stations][station_item - 1]
-
-      if (all_route_stations.size == 2) && all_route_stations.include?(target_station)
-        raise RailwayError.new, 'Нельзя добавлять начальную и конечную стации как промежуточную, повторите ввод'
-      else
-        @config[:routes][chosen_route_number].add_station(target_station)
-        puts "Станция '#{target_station.title}' добавлена в маршрут"
-        routes_menu
-      end
-    else
+    unless (1..@config[:stations].size).include?(station_item)
       raise RailwayError.new, 'Вы ввели неверный номер станции, повторите ввод'
     end
+
+    target_station = @config[:stations][station_item - 1]
+
+    if (all_route_stations.size == 2) && all_route_stations.include?(target_station)
+      raise RailwayError.new, 'Нельзя добавлять начальную и конечную стации как промежуточную, повторите ввод'
+    end
+
+    @config[:routes][chosen_route_number].add_station(target_station)
+    puts "Станция '#{target_station.title}' добавлена в маршрут"
+    routes_menu
   rescue RailwayError => e
     puts e.message
     retry
@@ -631,14 +635,14 @@ class Railway
     print 'Введите номер станции, которую хотите удалить: '
     station_item = gets.chomp.to_i
 
-    if (1..@config[:stations].size).include?(station_item)
-      target_station = @config[:stations][station_item - 1]
-      @config[:routes][chosen_route_number].remove_station(target_station)
-      puts "Станция '#{target_station.title}' удалена из маршрута"
-      routes_menu
-    else
+    unless (1..@config[:stations].size).include?(station_item)
       raise RailwayError.new, 'Вы ввели неверный номер станции'
     end
+
+    target_station = @config[:stations][station_item - 1]
+    @config[:routes][chosen_route_number].remove_station(target_station)
+    puts "Станция '#{target_station.title}' удалена из маршрута"
+    routes_menu
   rescue RailwayError => e
     puts e.message
     routes_menu
