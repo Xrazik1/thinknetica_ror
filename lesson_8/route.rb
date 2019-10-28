@@ -20,9 +20,7 @@ class Route
   end
 
   def add_station(station)
-    if @middle_stations.include?(station)
-      raise RailwayError.new, "Станция '#{station.title}' уже есть в маршруте"
-    end
+    raise RailwayError.new, "Станция '#{station.title}' уже есть в маршруте" if @middle_stations.include?(station)
 
     @middle_stations << station
     true
@@ -32,7 +30,9 @@ class Route
     unless (station != @start_station) && (station != @end_station)
       raise RailwayError.new, 'Нельзя изменять начальную и конечную станцию, создайте новый маршрут'
     end
-    raise RailwayError.new, "Станция '#{station.title}' отсутствует в маршруте" unless @middle_stations.include?(station)
+    unless @middle_stations.include?(station)
+      raise RailwayError.new, "Станция '#{station.title}' отсутствует в маршруте"
+    end
 
     @middle_stations.delete(station)
     true
@@ -44,6 +44,7 @@ class Route
 
   protected
 
+  # rubocop: disable Style/GuardClause
   def validate!
     unless @start_station.instance_of?(Station)
       raise RailwayError.new, "Начальная станция должна быть объектом класса 'Станция'"
@@ -53,3 +54,4 @@ class Route
     end
   end
 end
+# rubocop: enable Style/GuardClause

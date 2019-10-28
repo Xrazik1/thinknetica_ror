@@ -66,6 +66,7 @@ class Train
     true
   end
 
+  # rubocop: disable Metrics/MethodLength
   def show_station(which)
     case which
     when 'current'
@@ -84,6 +85,7 @@ class Train
       puts "Такого направления не существует (#{action})"
     end
   end
+  # rubocop: enable Metrics/MethodLength
 
   def each_carriage
     raise RailwayError.new, "У поезда '#{number}' отсутствуют вагоны" if @carriages.empty?
@@ -104,13 +106,13 @@ class Train
     target_station_index = @route.all_stations.find_index(@current_station) - 1
     last_possible_station_index = -1
 
-    return @route.all_stations[target_station_index] if target_station_index != last_possible_station_index
+    @route.all_stations[target_station_index] if target_station_index != last_possible_station_index
   end
 
   def next_station
     target_station_index = @route.all_stations.find_index(@current_station) + 1
     last_possible_station_index = @route.all_stations.length
 
-    return @route.all_stations[target_station_index] if target_station_index != last_possible_station_index
+    @route.all_stations[target_station_index] if target_station_index != last_possible_station_index
   end
 end

@@ -34,7 +34,9 @@ class Station
   end
 
   def send_train(train)
-    raise RailwayError.new, "Поезд с номером #{train.number} отсутствует на станции: #{@title}" unless all_trains.include?(train)
+    unless all_trains.include?(train)
+      raise RailwayError.new, "Поезд с номером #{train.number} отсутствует на станции: #{@title}"
+    end
 
     if train.type == 'Грузовой'
       @cargo_trains.delete(train)
@@ -49,7 +51,8 @@ class Station
   end
 
   def show_train_type_quantity
-    puts "Количество поездов на станции '#{@title}': Грузовых - #{@cargo_trains.size}, Пассажирских - #{@passenger_trains.size}"
+    print "Количество поездов на станции '#{@title}':"
+    puts "Грузовых - #{@cargo_trains.size}, Пассажирских - #{@passenger_trains.size}"
   end
 
   def each_train
