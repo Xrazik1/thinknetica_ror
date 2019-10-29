@@ -55,24 +55,3 @@ module Validation
     end
   end
 end
-
-class Test2
-
-end
-
-class Test
-  include Validation
-  validate :name, :presence
-  validate :name, :format, /^[a-z0-9]{3}-?[a-z0-9]{2}$/i
-  validate :number, :format, /^[a-z0-9]{3}-?[a-z0-9]{2}$/i
-  validate :instance, :type, Test2
-  def initialize(name, number, instance)
-    @name = name
-    @number = number
-    @instance = instance
-    puts valid?
-  end
-end
-
-
-
