@@ -1,12 +1,16 @@
 # frozen_string_literal: true
 
+require_relative 'validation'
 require_relative 'railway_error'
 require_relative 'general_methods'
 
 class Station
   include GeneralMethods
+  include Validation
 
   attr_reader :title
+
+  validate :title, :presence
 
   def initialize(title)
     @title = title
@@ -59,11 +63,5 @@ class Station
     raise RailwayError.new, "На станции '#{title}' отсутствуют поезда" if all_trains.empty?
 
     all_trains.each.with_index(1) { |train, number| yield(train, number) }
-  end
-
-  protected
-
-  def validate!
-    raise RailwayError.new, 'Название станции не может быть пустой строкой!' if title == ''
   end
 end

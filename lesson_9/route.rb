@@ -1,11 +1,16 @@
 # frozen_string_literal: true
 
+require_relative 'validation'
 require_relative 'station'
 require_relative 'railway_error'
 require_relative 'general_methods'
 
 class Route
   include GeneralMethods
+  include Validation
+
+  validate :start_station, :type, Station
+  validate :end_station, :type, Station
 
   def initialize(start_station, end_station)
     @middle_stations = []
@@ -41,17 +46,4 @@ class Route
   def show_stations
     all_stations.each { |station| puts station.title }
   end
-
-  protected
-
-  # rubocop: disable Style/GuardClause
-  def validate!
-    unless @start_station.instance_of?(Station)
-      raise RailwayError.new, "Начальная станция должна быть объектом класса 'Станция'"
-    end
-    unless @end_station.instance_of?(Station)
-      raise RailwayError.new, "Конечная станция должна быть объектом класса 'Станция'"
-    end
-  end
 end
-# rubocop: enable Style/GuardClause
