@@ -2,13 +2,20 @@
 
 require_relative 'train'
 require_relative 'railway_error'
+require_relative 'validation'
 
 class CargoTrain < Train
+  include Validation
+
   attr_reader :type
+
+  validate :number, :presence
+  validate :number, :format, NUMBER_FORMAT
 
   def initialize(number)
     super(number)
     @type = 'Грузовой'
+
     validate!
   end
 

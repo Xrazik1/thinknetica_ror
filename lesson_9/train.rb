@@ -17,8 +17,6 @@ class Train
     @number = number
     @carriages = []
     @current_speed = 0
-
-    validate!
   end
 
   def change_number(new_number)
@@ -91,13 +89,6 @@ class Train
     raise RailwayError.new, "У поезда '#{number}' отсутствуют вагоны" if @carriages.empty?
 
     @carriages.each.with_index(1) { |carriage, number| yield(carriage, number) }
-  end
-
-  protected
-
-  def validate!
-    raise RailwayError.new, 'Номер поезда не может быть пустой строкой!' if number == ''
-    raise RailwayError.new, 'Номер поезда не соответствует формату' if number !~ NUMBER_FORMAT
   end
 
   private

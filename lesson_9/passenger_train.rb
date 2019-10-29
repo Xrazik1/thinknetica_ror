@@ -1,14 +1,22 @@
 # frozen_string_literal: true
 
+require_relative 'validation'
 require_relative 'train'
 require_relative 'railway_error'
 
 class PassengerTrain < Train
+  include Validation
+
   attr_reader :type
+
+  validate :number, :presence
+  validate :number, :format, NUMBER_FORMAT
 
   def initialize(number)
     super(number)
     @type = 'Пассажирский'
+
+    validate!
   end
 
   def add_passenger_carriage(carriage)
