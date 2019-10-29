@@ -4,14 +4,13 @@ require_relative 'railway_error'
 
 class CargoCarriage
   attr_reader :capacity
+  attr_reader :free_capacity
 
   def initialize(capacity)
     raise RailwayError.new, 'Объем вагона должен быть больше нуля' if capacity <= 0
 
     @capacity = @free_capacity = capacity
   end
-
-  attr_reader :free_capacity
 
   def used_capacity
     @capacity - @free_capacity

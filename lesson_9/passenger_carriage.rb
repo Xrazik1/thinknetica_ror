@@ -4,14 +4,13 @@ require_relative 'railway_error'
 
 class PassengerCarriage
   attr_reader :seats
+  attr_reader :vacant_seats
 
   def initialize(seats)
     raise RailwayError.new, 'Количество мест в вагоне должно быть больше нуля' if seats <= 0
 
     @seats = @vacant_seats = seats
   end
-
-  attr_reader :vacant_seats
 
   def used_seats
     @seats - @vacant_seats
