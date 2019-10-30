@@ -25,6 +25,7 @@ module Validation
   module InstanceMethods
     def valid?
       validate!
+      true
     rescue RailwayError
       false
     end
@@ -35,23 +36,28 @@ module Validation
         var_value = instance_variable_get(var_name)
         rules.each do |rule|
           check_type = rule[0]
-          case check_type
-          when :presence
-            raise RailwayError.new, "Value can't be nil or empty" if var_value.nil? || var_value.empty?
-          when :format
-            check_rule = rule[1]
-            raise RailwayError.new, "Value doesn't match the format '#{check_rule}'" if var_value !~ check_rule
-          when :type
-            check_rule = rule[1]
-            unless var_value.instance_of?(check_rule)
-              raise RailwayError.new, "Value doesn't match the type '#{check_rule}'"
-            end
-          else
-            raise RailwayError.new, "Validate method doesn't have '#{check_type}' option"
-          end
+          params = { value: var_value, rule: rule[1] }
+
+          send("validate_#{check_type}", params)
         end
       end
-      true
+    end
+
+    def validate_presence(params)
+      value = params[:value]
+      raise RailwayError.new, "Value can't be nil or empty" if value.nil? || value.empty?
+    end
+
+    def validate_format(params)
+      value = params[:value]
+      rule = params[:rule]
+      raise RailwayError.new, "Value doesn't match the format '#{rule}'" if value !~ rule
+    end
+
+    def validate_type(params)
+      value = params[:value]
+      rule = params[:rule]
+      raise RailwayError.new, "Value doesn't match the type '#{rule}'" unless value.instance_of?(rule)
     end
   end
 end
