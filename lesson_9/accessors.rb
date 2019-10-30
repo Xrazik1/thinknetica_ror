@@ -32,8 +32,6 @@ module Accessors
   end
 
   module InstanceMethods
-    attr_accessor :variables_history
-
     def history_save(name, value)
       self.variables_history ||= {}
       self.variables_history[name] ||= []
@@ -41,8 +39,12 @@ module Accessors
     end
 
     def history_get(name)
-      self.variables_history[name]
+      self.variables_history[name].delete_at(0)
     end
+
+    protected
+
+    attr_accessor :variables_history
   end
 end
 
@@ -57,10 +59,8 @@ end
 test = Test.new
 test.variable1 = 'test'
 test.variable1 = 'test2'
-test.variable2 = 'test'
 test.variable3 = 'test3'
 test.variable3 = 'test'
 test.strong_variable = test
-puts test.instance_variables.inspect
 puts test.variable1_history.inspect
-puts test.variables_history.inspect
+puts test.variable3_history.inspect
