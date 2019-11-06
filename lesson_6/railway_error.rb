@@ -1,1 +1,0 @@
-class RailwayError < StandardError; end
